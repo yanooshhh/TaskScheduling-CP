@@ -17,22 +17,22 @@ namespace CPplayground.Helpers
             for (int i = 0; i <= 3; i++)
             {
                 var tasksFilteredBySeparation = etTasks.Where(t => t.Separation == i);
-                
+
                 // the period of a server is the GCD value of its ET tasks minimal separation periods
                 int period = AuxiliaryHelper.GetGCD(tasksFilteredBySeparation.Select(t => t.Period).ToArray());
 
                 // the worst-case duration of a server is all its tasks being released all together i.e. the sum of all their durations
-                int duration = tasksFilteredBySeparation.Select(t => t.Duration).Sum()/10;
+                int duration = tasksFilteredBySeparation.Select(t => t.Duration).Sum() / 10;
 
                 // ?? the worst-case deadline of a server is the minimal deadline from its tasks
                 int deadline = tasksFilteredBySeparation.Select(t => t.Deadline).Min();
 
                 pollingServers.Add(new TaskDefinition($"PollingServer{i}", duration, period, false, 0, deadline, i, tasksFilteredBySeparation.ToList()));
             }
-            
+
             return pollingServers;
         }
-        
+
         //public static List<PollingServerSlot> GetETPollingServersSlots(Schedule schedule)
         //{
         //    List<PollingServerSlot> slots = new();
@@ -104,11 +104,11 @@ namespace CPplayground.Helpers
         //    return slots;
         //}
 
-        public static (bool, int) getSchedulabilityofET(List<PollingServerSlot> pollingServerSlots, List<Tuple<int,TaskInstance>> ETtaskSchedule, int fullPeriod)
+        public static (bool, int) getSchedulabilityofET(List<PollingServerSlot> pollingServerSlots, List<Tuple<int, TaskInstance>> ETtaskSchedule, int fullPeriod)
         {
             int responseTime = 0;
 
-            foreach ((_,var task) in ETtaskSchedule)
+            foreach ((_, var task) in ETtaskSchedule)
             {
                 int t = 0;
                 responseTime = task.AbsoluteDeadline + 1;
@@ -118,9 +118,9 @@ namespace CPplayground.Helpers
                     int supply = getSupplyAtTick(pollingServerSlots, t);
                     int demand = 0;
 
-                    foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority)) 
+                    foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority))
                     {
-                        demand += (int) Math.Ceiling((double) t / (double) higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
+                        demand += (int)Math.Ceiling((double)t / (double)higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
                     }
 
                     if (supply > demand)
@@ -144,7 +144,7 @@ namespace CPplayground.Helpers
         private static int getSupplyAtTick(List<PollingServerSlot> pollingServerSlots, int tick)
         {
             int supply = 0;
-            
+
             foreach (PollingServerSlot pollingServerSlot in pollingServerSlots)
             {
                 if (pollingServerSlot.EndTime < tick)
@@ -162,41 +162,6 @@ namespace CPplayground.Helpers
             }
 
             return supply;
-        }
-        public static (bool, int) GetResponseTimesForPollingServes(Tuple<IntVar, IntVar> optimisationVars, IEnumerable<TaskDefinition> tasks, int fullPeriod)
-        {
-            (IntVar periodVar, IntVar durationVar) = optimisationVars;
-
-            LinearExpr delta = 2 * (periodVar - durationVar);
-
-            int responseTime = 0;
-            foreach (var task in tasks)
-            {
-                int t = 0;
-                responseTime = task.Deadline + 1;
-
-                while (t <= fullPeriod)
-                {
-                    LinearExpr supply = 1 * (t - delta);
-                    int demand = 0;
-                    foreach (var task2 in tasks.Where(t => t.Priority >= task.Priority))
-                    {
-                        demand += (int) Math.Ceiling((t / (double)task2.Period)) * task2.Duration;
-                    }
-                    if (supply >= demand * periodVar)
-                    {
-                        responseTime = t;
-                        break;
-                    }
-                    t++;
-                }
-                if (responseTime > task.Deadline)
-                {
-                    return (false, responseTime);
-                }
-            }
-
-            return (true, responseTime);
         }
     }
 }
