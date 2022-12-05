@@ -104,66 +104,66 @@ namespace CPplayground.Helpers
         //    return slots;
         //}
 
-        public static (bool, int) getSchedulabilityofET(List<Job> serverSlots, List<TaskDefinition> etTasks, int fullPeriod)
-        {
-            int responseTime = 0;
+    //    public static (bool, int) getSchedulabilityofET(List<Job> serverSlots, List<TaskDefinition> etTasks, int fullPeriod)
+    //    {
+    //        int responseTime = 0;
 
-            foreach (TaskDefinition task in etTasks)
-            {
-                int t = 0;
-                responseTime = task.AbsoluteDeadline + 1;
+    //        foreach (TaskDefinition task in etTasks)
+    //        {
+    //            int t = 0;
+    //            responseTime = task.AbsoluteDeadline + 1;
 
-                while (t < fullPeriod)
-                {
-                    int supply = getSupplyAtTick(pollingServerSlots, t);
-                    int demand = 0;
+    //            while (t < fullPeriod)
+    //            {
+    //                int supply = getSupplyAtTick(pollingServerSlots, t);
+    //                int demand = 0;
 
-                    foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority))
-                    {
-                        demand += (int)Math.Ceiling((double)t / (double)higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
-                    }
+    //                foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority))
+    //                {
+    //                    demand += (int)Math.Ceiling((double)t / (double)higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
+    //                }
 
-                    if (supply > demand)
-                    {
-                        responseTime = t;
-                        break;
-                    }
+    //                if (supply > demand)
+    //                {
+    //                    responseTime = t;
+    //                    break;
+    //                }
 
-                    t++;
-                }
+    //                t++;
+    //            }
 
-                if (responseTime > task.AbsoluteDeadline)
-                {
-                    return (false, responseTime);
-                }
-            }
+    //            if (responseTime > task.AbsoluteDeadline)
+    //            {
+    //                return (false, responseTime);
+    //            }
+    //        }
 
-            return (true, responseTime);
-        }
+    //        return (true, responseTime);
+    //    }
 
-        private static int getSupplyAtTick(List<Job> pollingServerSlots, int tick)
-        {
-            int supply = 0;
+    //    private static int getSupplyAtTick(List<Job> pollingServerSlots, int tick)
+    //    {
+    //        int supply = 0;
 
-            foreach (var pollingServerSlot in pollingServerSlots)
-            {
-                if (pollingServerSlot. < tick)
-                {
-                    supply += pollingServerSlot. - pollingServerSlot.StartTime;
-                }
-                else if (pollingServerSlot.StartTime < tick)
-                {
-                    supply += tick - pollingServerSlot.StartTime;
-                }
-                else
-                {
-                    break;
-                }
-            }
+    //        foreach (var pollingServerSlot in pollingServerSlots)
+    //        {
+    //            if (pollingServerSlot. < tick)
+    //            {
+    //                supply += pollingServerSlot. - pollingServerSlot.StartTime;
+    //            }
+    //            else if (pollingServerSlot.StartTime < tick)
+    //            {
+    //                supply += tick - pollingServerSlot.StartTime;
+    //            }
+    //            else
+    //            {
+    //                break;
+    //            }
+    //        }
 
-            return supply;
-        }
-    }
+    //        return supply;
+    //    }
+    }  
 }
 
 // Next step is to use the Alg 2 for getting the score for ET
