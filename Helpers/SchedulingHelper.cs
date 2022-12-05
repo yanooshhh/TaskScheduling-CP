@@ -10,15 +10,15 @@ namespace CPplayground.Helpers
 {
     internal class SchedulingHelper
     {
-        public static List<TaskInstance> GetAllRepeatingTasks(List<TaskDefinition> taskDefinitions, int fullPeriod)
+        public static List<Job> GetAllRepeatingTasks(List<TaskDefinition> taskDefinitions, int fullPeriod)
         {
-            List<TaskInstance> taskInstances = new();
+            List<Job> taskInstances = new();
             
             foreach (TaskDefinition taskDefinition in taskDefinitions)
             {
                 for (int tick = 0; tick < fullPeriod; tick += taskDefinition.Period)
                 {
-                    taskInstances.Add(new TaskInstance(taskDefinition, 
+                    taskInstances.Add(new Job(taskDefinition, 
                                                        tick, 
                                                        tick + taskDefinition.Deadline));
                 }
@@ -27,7 +27,7 @@ namespace CPplayground.Helpers
             return taskInstances;
         }
 
-        static public Schedule ConvertToSchedule(AllTaskInstancesWithVars allTasksVars, CpSolver solver)
+        static public Schedule ConvertToSchedule(AllJobsOptVariables allTasksVars, CpSolver solver)
         {
             var schedule = new Schedule();
 

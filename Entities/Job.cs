@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CPplayground.Entities
 {
-    internal class TaskInstance
+    internal class Job
     {
-        public TaskInstance(TaskDefinition taksDef, int release, int absoluteDeadline)
+        public Job(TaskDefinition taksDef, int release, int absoluteDeadline)
         {
             TaskDefinition = taksDef;
             Release = release;

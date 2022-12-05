@@ -11,7 +11,7 @@ namespace CPplayground.Helpers
     internal class OptimisationHelper
     {
         static readonly long DEADLINE_PENALTY = 100000000;
-        static public LinearExpr GetLossExpression(AllTaskInstancesWithVars allTasksVars)
+        static public LinearExpr GetLossExpression(AllJobsOptVariables allTasksVars)
         {
             List<LinearExpr> allExpressions = new List<LinearExpr>();
             
@@ -32,7 +32,7 @@ namespace CPplayground.Helpers
             return LinearExpr.Sum(allExpressions);
         }
 
-        static public Schedule ConvertToSchedule(AllTaskInstancesWithVars allTasksVars, CpSolver solver)
+        static public Schedule ConvertToSchedule(AllJobsOptVariables allTasksVars, CpSolver solver)
         {
             var schedule = new Schedule();
 

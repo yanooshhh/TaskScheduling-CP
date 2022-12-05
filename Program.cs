@@ -8,7 +8,7 @@ using Google.OrTools.Sat;
 string testCasePath = "test_cases\\inf_10_10_seperation\\seperationCase.csv";
 
 CpModel model = new CpModel();
-AllTaskInstancesWithVars allTasksVars = new();
+AllJobsOptVariables allTasksVars = new();
 
 var allTaskDefinitions = TaskReader.LoadTasks(testCasePath);
 var allTtTaskDefinitions = allTaskDefinitions.Where(t => !t.IsET).ToList();
@@ -44,4 +44,5 @@ Console.WriteLine($"Solve status: {status}, lossVal: {solver.BestObjectiveBound}
 var schedule = OptimisationHelper.ConvertToSchedule(allTasksVars, solver);
 
 schedule.PrintFullSchedule();
+
 

@@ -104,11 +104,11 @@ namespace CPplayground.Helpers
         //    return slots;
         //}
 
-        public static (bool, int) getSchedulabilityofET(List<PollingServerSlot> pollingServerSlots, List<Tuple<int, TaskInstance>> ETtaskSchedule, int fullPeriod)
+        public static (bool, int) getSchedulabilityofET(List<Job> serverSlots, List<TaskDefinition> etTasks, int fullPeriod)
         {
             int responseTime = 0;
 
-            foreach ((_, var task) in ETtaskSchedule)
+            foreach (TaskDefinition task in etTasks)
             {
                 int t = 0;
                 responseTime = task.AbsoluteDeadline + 1;
@@ -141,15 +141,15 @@ namespace CPplayground.Helpers
             return (true, responseTime);
         }
 
-        private static int getSupplyAtTick(List<PollingServerSlot> pollingServerSlots, int tick)
+        private static int getSupplyAtTick(List<Job> pollingServerSlots, int tick)
         {
             int supply = 0;
 
-            foreach (PollingServerSlot pollingServerSlot in pollingServerSlots)
+            foreach (var pollingServerSlot in pollingServerSlots)
             {
-                if (pollingServerSlot.EndTime < tick)
+                if (pollingServerSlot. < tick)
                 {
-                    supply += pollingServerSlot.EndTime - pollingServerSlot.StartTime;
+                    supply += pollingServerSlot. - pollingServerSlot.StartTime;
                 }
                 else if (pollingServerSlot.StartTime < tick)
                 {
