@@ -7,9 +7,6 @@ using Google.OrTools.Sat;
 
 string testCasePath = "test_cases\\inf_10_10_seperation\\seperationCase.csv";
 
-CpModel model = new CpModel();
-AllJobsOptVariables allTasksVars = new();
-
 var allTaskDefinitions = TaskReader.LoadTasks(testCasePath);
 var allTtTaskDefinitions = allTaskDefinitions.Where(t => !t.IsET).ToList();
 var allEtTaskDefinitions = allTaskDefinitions.Where(t => t.IsET).ToList();
@@ -19,21 +16,7 @@ var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).To
 int fullPeriod = AuxiliaryHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
 var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
 
-foreach (var job in allJobs)
-{
-    string suffix = $"__{job.TaskDefinition.Name}_r{job.Release}";
-    IntVar start = model.NewIntVar(job.Release, fullPeriod, "start" + suffix);
-    IntervalVar intervalVar = model.NewFixedSizeIntervalVar(start, job.TaskDefinition.Duration, "interval" + suffix);
-
-    allTasksVars.AddTT(job, start, intervalVar);
-}
-
-// constraints
-model.AddNoOverlap(allTasksVars.GetTTVars().Select(t => t.Value.Item2));
-
-// objective
-model.Minimize(OptimisationHelper.GetLossExpression(allTasksVars));
-
+(CpModel model, AllJobsOptVariables allTasksVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);
 
 CpSolver solver = new();
 CpSolverStatus status = solver.Solve(model);
@@ -41,7 +24,9 @@ CpSolverStatus status = solver.Solve(model);
 Console.WriteLine($"Solve status: {status}, lossVal: {solver.BestObjectiveBound}");
 
 var schedule = OptimisationHelper.ConvertToSchedule(allTasksVars, solver);
-
 schedule.PrintFullSchedule();
+Console.WriteLine($"All tasks are {(schedule.IsSchedulable() ? "" : "NOT ")}scheduled before their deadlines.");
+
+
 
 

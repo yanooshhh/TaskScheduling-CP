@@ -40,6 +40,14 @@ namespace CPplayground.Entities
             });
         }
 
+        public bool IsSchedulable()
+        {
+            foreach ((var startTime, var job) in schedule)
+                if (startTime > job.AbsoluteDeadline - job.TaskDefinition.Duration)
+                    return false;
+
+            return true;
+        }
 
     }
 }
