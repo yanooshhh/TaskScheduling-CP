@@ -10,19 +10,14 @@ namespace CPplayground.Helpers
 {
     internal class OptimisationHelper
     {
-        static readonly long DEADLINE_PENALTY = 100000000;
+        static readonly long DEADLINE_PENALTY = 1000000;
 
-        static public Schedule ConvertToSchedule(AllJobsOptVariables allTasksVars, CpSolver solver)
+        static public Schedule ConvertToSchedule(AllJobsOptVariables allJobsVars, CpSolver solver)
         {
             var schedule = new Schedule();
 
-            foreach (var taskWithVars in allTasksVars.GetTTVars())
-            {
-                (var task, (var start, _)) = taskWithVars;
-
-                int optimalStart = (int) solver.Value(start);
-                schedule.Add(optimalStart, task);
-            }
+            foreach ((var job, var interval) in allJobsVars.GetOptVars())
+                schedule.Add((int) solver.Value(interval.StartExpr()), job);
 
             schedule.Sort();
             return schedule;
@@ -30,7 +25,7 @@ namespace CPplayground.Helpers
 
         static public (CpModel, AllJobsOptVariables) PrepareModel(List<Job> jobs, int fullPeriod)
         {
-            CpModel model = new CpModel();
+            CpModel model = new();
             AllJobsOptVariables allTasksVars = new();
 
             foreach (var job in jobs)
@@ -39,34 +34,25 @@ namespace CPplayground.Helpers
                 IntVar start = model.NewIntVar(job.Release, fullPeriod, "start" + suffix);
                 IntervalVar intervalVar = model.NewFixedSizeIntervalVar(start, job.TaskDefinition.Duration, "interval" + suffix);
 
-                allTasksVars.AddTT(job, start, intervalVar);
+                allTasksVars.Add(job, intervalVar);
             }
 
-            // constraints
-            model.AddNoOverlap(allTasksVars.GetTTVars().Select(t => t.Value.Item2));
-
-            // objective
+            model.AddNoOverlap(allTasksVars.GetOptVars().Select(t => t.Value));
             model.Minimize(GetLossExpression(allTasksVars));
 
             return (model, allTasksVars);
         }
 
-        static private LinearExpr GetLossExpression(AllJobsOptVariables allTasksVars)
+        static private LinearExpr GetLossExpression(AllJobsOptVariables allJobsVars)
         {
-            List<LinearExpr> allExpressions = new List<LinearExpr>();
+            List<LinearExpr> allExpressions = new();
 
-            foreach (var taskVars in allTasksVars.GetTTVars())
+            foreach ((var job, var interval) in allJobsVars.GetOptVars())
             {
-                var task = taskVars.Key;
-                (var start, var interval) = taskVars.Value;
-                if (interval.EndExpr() > taskVars.Key.AbsoluteDeadline)
-                {
+                if (interval.EndExpr() > job.AbsoluteDeadline)
                     allExpressions.Add(LinearExpr.Constant(DEADLINE_PENALTY));
-                }
                 else
-                {
-                    allExpressions.Add(interval.EndExpr() - task.Release);
-                }
+                    allExpressions.Add(interval.EndExpr() - job.Release);
             }
 
             return LinearExpr.Sum(allExpressions);

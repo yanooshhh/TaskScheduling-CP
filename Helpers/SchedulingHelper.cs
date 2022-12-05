@@ -29,12 +29,12 @@ namespace CPplayground.Helpers
         {
             var schedule = new Schedule();
 
-            foreach (var taskWithVars in allTasksVars.GetTTVars())
+            foreach (var taskWithVars in allTasksVars.GetOptVars())
             {
-                (var task, (var start, _)) = taskWithVars;
+                (var job, var interval) = taskWithVars;
 
-                int optimalStart = (int)solver.Value(start);
-                schedule.Add(optimalStart, task);
+                int optimalStart = (int)solver.Value(interval.StartExpr());
+                schedule.Add(optimalStart, job);
             }
 
             schedule.Sort();

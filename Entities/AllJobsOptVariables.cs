@@ -10,20 +10,20 @@ namespace CPplayground.Entities
     internal class AllJobsOptVariables
     {
         // ttTask: <start,interval>
-        private Dictionary<Job, Tuple<IntVar, IntervalVar>> ttDict;
+        private Dictionary<Job, IntervalVar> optVarsDict;
         public AllJobsOptVariables()
         {
-            ttDict = new Dictionary<Job, Tuple<IntVar, IntervalVar>>();
+            optVarsDict = new Dictionary<Job, IntervalVar>();
         }
 
-        public void AddTT(Job task, IntVar start, IntervalVar interval)
+        public void Add(Job task, IntervalVar interval)
         {
-            ttDict.Add(task, Tuple.Create(start, interval));
+            optVarsDict.Add(task, interval);
         }
 
-        public Dictionary<Job, Tuple<IntVar, IntervalVar>> GetTTVars()
+        public Dictionary<Job, IntervalVar> GetOptVars()
         {
-            return ttDict;
+            return optVarsDict;
         }
 
     }

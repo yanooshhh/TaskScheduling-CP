@@ -16,14 +16,14 @@ var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).To
 int fullPeriod = AuxiliaryHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
 var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
 
-(CpModel model, AllJobsOptVariables allTasksVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);
+(CpModel model, AllJobsOptVariables allJobsVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);
 
 CpSolver solver = new();
 CpSolverStatus status = solver.Solve(model);
 
 Console.WriteLine($"Solve status: {status}, lossVal: {solver.BestObjectiveBound}");
 
-var schedule = OptimisationHelper.ConvertToSchedule(allTasksVars, solver);
+var schedule = OptimisationHelper.ConvertToSchedule(allJobsVars, solver);
 schedule.PrintFullSchedule();
 Console.WriteLine($"All tasks are {(schedule.IsSchedulable() ? "" : "NOT ")}scheduled before their deadlines.");
 
