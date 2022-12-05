@@ -13,7 +13,7 @@ var allEtTaskDefinitions = allTaskDefinitions.Where(t => t.IsET).ToList();
 var pollingServers = PollingServersHelper.GetPollingServersDefinitionsFromETs(allEtTaskDefinitions);
 var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).ToList();
 
-int fullPeriod = AuxiliaryHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
+int fullPeriod = MathHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
 var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
 
 (CpModel model, AllJobsOptVariables allJobsVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);

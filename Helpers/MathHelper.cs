@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CPplayground.Helpers
 {
-    internal class AuxiliaryHelper
+    internal class MathHelper
     {
         static public int GetLCM(int[] vals)
         {
