@@ -17,20 +17,19 @@ var pollingServers = PollingServersHelper.GetPollingServersDefinitionsFromETs(al
 var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).ToList();
 
 int fullPeriod = AuxiliaryHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
-var allTasksInstances = SchedulingHelper.GetAllRepeatingTasks(allTtTasksAndPollingServers, fullPeriod);
+var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
 
-foreach (var taskInstance in allTasksInstances)
+foreach (var job in allJobs)
 {
-    String suffix = $"__{taskInstance.TaskDefinition.Name}_r{taskInstance.Release}";
-    IntVar start = model.NewIntVar(taskInstance.Release, fullPeriod, "start" + suffix);
-    IntVar end = model.NewIntVar(taskInstance.Release, fullPeriod, "end" + suffix);
-    IntervalVar intervalVar = model.NewIntervalVar(start, taskInstance.TaskDefinition.Duration, end, "interval" + suffix);
+    string suffix = $"__{job.TaskDefinition.Name}_r{job.Release}";
+    IntVar start = model.NewIntVar(job.Release, fullPeriod, "start" + suffix);
+    IntervalVar intervalVar = model.NewFixedSizeIntervalVar(start, job.TaskDefinition.Duration, "interval" + suffix);
 
-    allTasksVars.AddTT(taskInstance, start, end, intervalVar);
+    allTasksVars.AddTT(job, start, intervalVar);
 }
 
 // constraints
-model.AddNoOverlap(allTasksVars.GetTTVars().Select(t => t.Value.Item3));
+model.AddNoOverlap(allTasksVars.GetTTVars().Select(t => t.Value.Item2));
 
 // objective
 model.Minimize(OptimisationHelper.GetLossExpression(allTasksVars));

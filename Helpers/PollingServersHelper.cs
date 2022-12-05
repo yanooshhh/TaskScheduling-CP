@@ -18,14 +18,18 @@ namespace CPplayground.Helpers
             {
                 var tasksFilteredBySeparation = etTasks.Where(t => t.Separation == i);
 
-                // the period of a server is the GCD value of its ET tasks minimal separation periods
+                // The period of a server is the GCD value of its ET tasks minimal separation periods
                 int period = AuxiliaryHelper.GetGCD(tasksFilteredBySeparation.Select(t => t.Period).ToArray());
 
-                // the worst-case duration of a server is all its tasks being released all together i.e. the sum of all their durations
-                int duration = tasksFilteredBySeparation.Select(t => t.Duration).Sum() / 10;
+                // Full utilisation of the server
+                int deadline = period;
 
-                // ?? the worst-case deadline of a server is the minimal deadline from its tasks
-                int deadline = tasksFilteredBySeparation.Select(t => t.Deadline).Min();
+                // Computing duration
+                double totalUntilization = 0;
+                foreach (var task in tasksFilteredBySeparation)
+                    totalUntilization += (double) task.Duration / (double) task.Period;
+
+                int duration = (int) (totalUntilization * period);
 
                 pollingServers.Add(new TaskDefinition($"PollingServer{i}", duration, period, false, 0, deadline, i, tasksFilteredBySeparation.ToList()));
             }
@@ -104,65 +108,65 @@ namespace CPplayground.Helpers
         //    return slots;
         //}
 
-    //    public static (bool, int) getSchedulabilityofET(List<Job> serverSlots, List<TaskDefinition> etTasks, int fullPeriod)
-    //    {
-    //        int responseTime = 0;
+        public static (bool, int) getSchedulabilityofET(List<Job> pollingServerSlots, List<TaskDefinition> etTasks, int fullPeriod)
+        {
+            int responseTime = 0;
 
-    //        foreach (TaskDefinition task in etTasks)
-    //        {
-    //            int t = 0;
-    //            responseTime = task.AbsoluteDeadline + 1;
+            foreach (TaskDefinition task in etTasks)
+            {
+                int t = 0;
+                responseTime = task.Deadline + 1;
 
-    //            while (t < fullPeriod)
-    //            {
-    //                int supply = getSupplyAtTick(pollingServerSlots, t);
-    //                int demand = 0;
+                while (t < fullPeriod)
+                {
+                    int supply = getSupplyAtTick(pollingServerSlots, t);
+                    int demand = 0;
 
-    //                foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority))
-    //                {
-    //                    demand += (int)Math.Ceiling((double)t / (double)higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
-    //                }
+                    foreach ((_, var higherPriorityTask) in ETtaskSchedule.Where(t => t.Item2.TaskDefinition.Priority > task.TaskDefinition.Priority))
+                    {
+                        demand += (int)Math.Ceiling((double)t / (double)higherPriorityTask.TaskDefinition.Period) * higherPriorityTask.TaskDefinition.Duration;
+                    }
 
-    //                if (supply > demand)
-    //                {
-    //                    responseTime = t;
-    //                    break;
-    //                }
+                    if (supply > demand)
+                    {
+                        responseTime = t;
+                        break;
+                    }
 
-    //                t++;
-    //            }
+                    t++;
+                }
 
-    //            if (responseTime > task.AbsoluteDeadline)
-    //            {
-    //                return (false, responseTime);
-    //            }
-    //        }
+                if (responseTime > task.AbsoluteDeadline)
+                {
+                    return (false, responseTime);
+                }
+            }
 
-    //        return (true, responseTime);
-    //    }
+            return (true, responseTime);
+        }
 
-    //    private static int getSupplyAtTick(List<Job> pollingServerSlots, int tick)
-    //    {
-    //        int supply = 0;
+        private static int getSupplyAtTick(List<Job> pollingServerSlots, int tick)
+        {
+            int supply = 0;
 
-    //        foreach (var pollingServerSlot in pollingServerSlots)
-    //        {
-    //            if (pollingServerSlot. < tick)
-    //            {
-    //                supply += pollingServerSlot. - pollingServerSlot.StartTime;
-    //            }
-    //            else if (pollingServerSlot.StartTime < tick)
-    //            {
-    //                supply += tick - pollingServerSlot.StartTime;
-    //            }
-    //            else
-    //            {
-    //                break;
-    //            }
-    //        }
+            foreach (var pollingServerSlot in pollingServerSlots)
+            {
+                if (pollingServerSlot. < tick)
+                {
+                    supply += pollingServerSlot. - pollingServerSlot.StartTime;
+                }
+                else if (pollingServerSlot.StartTime < tick)
+                {
+                    supply += tick - pollingServerSlot.StartTime;
+                }
+                else
+                {
+                    break;
+                }
+            }
 
-    //        return supply;
-    //    }
+            return supply;
+        }
     }  
 }
 

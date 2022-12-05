@@ -18,14 +18,14 @@ namespace CPplayground.Helpers
             foreach (var taskVars in allTasksVars.GetTTVars())
             {
                 var task = taskVars.Key;
-                (var start, var end, _) = taskVars.Value;
-                if (end > taskVars.Key.AbsoluteDeadline)
+                (var start, var interval) = taskVars.Value;
+                if (interval.EndExpr() > taskVars.Key.AbsoluteDeadline)
                 {
                     allExpressions.Add(LinearExpr.Constant(DEADLINE_PENALTY));              
                 } 
                 else
                 {
-                    allExpressions.Add(end - task.Release);
+                    allExpressions.Add(interval.EndExpr() - task.Release);
                 }
             }
 
@@ -38,7 +38,7 @@ namespace CPplayground.Helpers
 
             foreach (var taskWithVars in allTasksVars.GetTTVars())
             {
-                (var task, (var start, _, _)) = taskWithVars;
+                (var task, (var start, _)) = taskWithVars;
 
                 int optimalStart = (int) solver.Value(start);
                 schedule.Add(optimalStart, task);
