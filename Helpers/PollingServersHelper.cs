@@ -16,7 +16,12 @@ namespace CPplayground.Helpers
 
             for (int i = 0; i <= 3; i++)
             {
-                var tasksFilteredBySeparation = etTasks.Where(t => t.Separation == i);
+                var tasksFilteredBySeparation = etTasks.Where(t => t.Separation == i).ToList();
+
+                // No tasks with the given separation, needs to be omitted
+                if (tasksFilteredBySeparation.Count == 0) 
+                    continue;
+
 
                 // The period of a server is the GCD value of its ET tasks minimal separation periods
                 int period = MathHelper.GetGCD(tasksFilteredBySeparation.Select(t => t.Period).ToArray());

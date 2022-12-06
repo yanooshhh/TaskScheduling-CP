@@ -1,31 +1,44 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using CPplayground;
 using CPplayground.Entities;
 using CPplayground.Helpers;
 using Google.OrTools.Sat;
 
-string testCasePath = "test_cases\\inf_10_10_seperation\\seperationCase.csv";
+string testCasePath = "FinalTestCases\\test";
 
-var allTaskDefinitions = TaskReader.LoadTasks(testCasePath);
-var allTtTaskDefinitions = allTaskDefinitions.Where(t => !t.IsET).ToList();
-var allEtTaskDefinitions = allTaskDefinitions.Where(t => t.IsET).ToList();
-var pollingServers = PollingServersHelper.GetPollingServersDefinitionsFromETs(allEtTaskDefinitions);
-var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).ToList();
+for (int i = 1; i <= 5; i++)
+{
+    Console.WriteLine($"\n----- TEST {i} -----\n");
+    
+    Stopwatch stopwatch = new();
 
-int fullPeriod = MathHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
-var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
+    var allTaskDefinitions = TaskReader.LoadTasks(testCasePath + i + ".csv");
+    var allTtTaskDefinitions = allTaskDefinitions.Where(t => !t.IsET).ToList();
+    var allEtTaskDefinitions = allTaskDefinitions.Where(t => t.IsET).ToList();
+    var pollingServers = PollingServersHelper.GetPollingServersDefinitionsFromETs(allEtTaskDefinitions);
+    var allTtTasksAndPollingServers = allTtTaskDefinitions.Concat(pollingServers).ToList();
 
-(CpModel model, AllJobsOptVariables allJobsVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);
+    int fullPeriod = MathHelper.GetLCM(allTtTasksAndPollingServers.Select(x => x.Period).ToArray());
+    var allJobs = SchedulingHelper.GetJobsFromTaskDefinitions(allTtTasksAndPollingServers, fullPeriod);
 
-CpSolver solver = new();
-CpSolverStatus status = solver.Solve(model);
+    (CpModel model, AllJobsOptVariables allJobsVars) = OptimisationHelper.PrepareModel(allJobs, fullPeriod);
 
-Console.WriteLine($"Solve status: {status}, lossVal: {solver.BestObjectiveBound}");
+    CpSolver solver = new();
 
-var schedule = OptimisationHelper.ConvertToSchedule(allJobsVars, solver);
-schedule.PrintFullSchedule();
-Console.WriteLine($"All tasks are {(schedule.IsSchedulable() ? "" : "NOT ")}scheduled before their deadlines.");
+    stopwatch.Start();
+    CpSolverStatus status = solver.Solve(model);
+    stopwatch.Stop();
+
+    Console.WriteLine($"Solve status: {status}, lossVal: {solver.BestObjectiveBound}");
+
+    var schedule = OptimisationHelper.ConvertToSchedule(allJobsVars, solver);
+    schedule.PrintFullSchedule();
+    Console.WriteLine($"All TT tasks are {(schedule.IsSchedulable() ? "" : "NOT ")}scheduled before their deadlines.");
+    Console.WriteLine($"The avg WCRT for TT tasks: {schedule.GetAvgWRCTForTT()}");
+    Console.WriteLine($"The solution was found in {stopwatch.ElapsedMilliseconds}ms");
+}
 
 
 

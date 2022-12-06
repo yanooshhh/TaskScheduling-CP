@@ -8,11 +8,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="FinalTestCases\test1.csv" />
+    <None Remove="FinalTestCases\test2.csv" />
+    <None Remove="FinalTestCases\test3.csv" />
+    <None Remove="FinalTestCases\test4.csv" />
     <None Remove="test_cases\inf_10_10_seperation\seperationCase.csv" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="test_cases\inf_10_10_seperation\seperationCase.csv">
+    <Content Include="FinalTestCases\test4.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FinalTestCases\test1.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FinalTestCases\test2.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FinalTestCases\test3.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FinalTestCases\test5.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -20,6 +36,10 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="29.0.0" />
     <PackageReference Include="Google.OrTools" Version="9.4.1874" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="test_cases\inf_10_10_seperation\" />
   </ItemGroup>
 
 </Project>

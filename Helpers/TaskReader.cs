@@ -38,7 +38,7 @@ namespace CPplayground.Helpers
                     "ET".Equals(csv.GetField("type")),
                     csv.GetField<int>("priority"),
                     csv.GetField<int>("deadline"),
-                    csv.GetField<int>("separation")));
+                    csv.GetField<int>("seperation")));
             }
             return tasks;
         }

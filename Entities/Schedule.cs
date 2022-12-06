@@ -49,5 +49,16 @@ namespace CPplayground.Entities
             return true;
         }
 
+        public double GetAvgWRCTForTT()
+        {
+            int summedResponseTime = 0;
+            var ttScheduleItems = schedule.Where(t => !t.Item2.TaskDefinition.IsET);
+
+            foreach ((var startTime, var job) in ttScheduleItems)
+                summedResponseTime += startTime + job.TaskDefinition.Duration - job.Release;
+            
+            return (double) summedResponseTime / (double) ttScheduleItems.Count();
+        }
+
     }
 }
